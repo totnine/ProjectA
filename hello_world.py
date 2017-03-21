@@ -10,6 +10,6 @@ import urllib as ulb
 import data_fetching
 
 # here is the hellos
-print('nihao\n')
+print('hello world!\n')
 
 data_fetching.data_fetching()
