@@ -1,9 +1,10 @@
 # modules in Anaconda
-# encoding = utf-8
+# encoding:utf-8
 import numpy as np
 import pandas as pd
 import matplotlib as plt
 import urllib as ulb
+from dateutil.parser import parse
 
 def data_fetching():
 	"""
@@ -11,7 +12,7 @@ def data_fetching():
 			Fetching the stock data for sina.com;
 			one example url is
 			"http://hq.sinajs.cn/list=sh601006"
-		return:
+
 			这个字符串由许多数据拼接在一起，不同含义的数据用逗号隔开了，按照程序员的思路，顺序号从0开始。
 			0：”大秦铁路”，股票名字；
 			1：”27.55″，今日开盘价；
@@ -31,15 +32,34 @@ def data_fetching():
 			15：”26.89″，“买三”
 			16：”14300″，“买四”
 			17：”26.88″，“买四”
-			18：”15100″，“买五”
+			18：”15100″，“买五” 	
 			19：”26.87″，“买五”
 			20：”3100″，“卖一”申报3100股，即31手；
 			21：”26.92″，“卖一”报价
 			(22, 23), (24, 25), (26,27), (28, 29)分别为“卖二”至“卖四的情况”
 			30：”2008-01-11″，日期；
 			31：”15:05:32″，时间；
+
+		return:
+			pandas DataFrame
+			
 	"""
+	#
 	urlnow = ulb.request.urlopen('http://hq.sinajs.cn/list=sh601006')
 	urldata = urlnow.read()
 	urldata = urldata.decode(encoding='gb2312')
-	print(urldata,'\n')
+	urldata = urldata.split(sep=',')
+	urldata_title = ['StockNum&Name', 'OpeningPriceToday', 'OpeningPriceYesterday', \
+					'PriceCurrent', 'TopPriceToday', 'BottomPriceToday', 'SellPriceComp', 'BuyPriceComp',\
+					'VolumesInHands', 'VolumesInPrice', 'BuyVolumes1', 'BuyPrice1', 'BuyVolumes2',\
+					'BuyPrice2', 'BuyVolumes3', 'BuyPrice3', 'BuyVolumes4', 'BuyPrice4',\
+					'BuyVolumes5', 'BuyPrice5', 'SellVolumes1', 'SellPrice1',\
+					'SellVolumes2', 'SellPrice2', 'SellVolumes3', 'SellPrice3', 'SellVolumes4', 'SellPrice4',\
+					'SellVolumes5', 'SellPrice5']
+	urldata_time = parse(urldata[-3]+' '+urldata[-2])
+	urldata = pd.DataFrame(urldata[:-3]).T
+	urldata.columns = urldata_title
+	urldata.index = [urldata_time]
+	return urldata
+	
+
